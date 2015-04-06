@@ -11,7 +11,7 @@ setup(
     license='LICENSE',
     description="Django package makes possible to store in DB and manage "
                 "through django-admin parameters with different types",
-    long_description=open('README.txt').read(),
+    long_description=open('README.md').read(),
     platforms='Any',
     classifiers = [
         'Development Status :: 3 - Alpha',

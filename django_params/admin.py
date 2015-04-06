@@ -1,5 +1,6 @@
 from datetime import datetime
 from django import forms
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin import widgets
 from django.utils.formats import get_format
@@ -48,7 +49,7 @@ class ParamAdmin(admin.ModelAdmin):
         return False
 
     def has_add_permission(self, request):  # deny addition
-        return False
+        return settings.DJANGO_PARAMS_HAS_ADD_PERMISSION
 
     def get_form(self, request, obj=None, **kwargs):
         """

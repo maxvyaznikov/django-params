@@ -15,7 +15,7 @@ class Param(models.Model):
         (TYPE_DATE, 'Date'),
         (TYPE_INT, 'Integer'),
     )
-    name = models.CharField(choices=settings.PARAMS_NAME_CHOICES, unique=True, max_length=255)
+    name = models.CharField(choices=settings.DJANGO_PARAMS_NAME_CHOICES, unique=True, max_length=255)
     type = models.CharField(choices=TYPE_CHOICES, default=TYPE_TEXT, max_length=10)
     value = models.TextField(blank=True, null=False, default='')
 

@@ -40,7 +40,14 @@ class Param(models.Model):
             return self.value
 
     @staticmethod
-    def get(name):
-        if not hasattr(Param, '_params_cache'):
-            Param._params_cache = {p.name: p for p in Param.objects.all()}
-        return Param._params_cache[name] if name in Param._params_cache else None
+    def get(request, name):
+        if not hasattr(request, '_django_params_cache'):
+            request._django_params_cache = {p.name: p for p in Param.objects.all()}
+        return request._django_params_cache[name] if name in request._django_params_cache else None
+
+    @staticmethod
+    def get_one(name):
+        try:
+            return Param.objects.get(name)
+        except Param.DoesNotExist:
+            return None

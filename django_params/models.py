@@ -48,6 +48,6 @@ class Param(models.Model):
     @staticmethod
     def get_one(name):
         try:
-            return Param.objects.get(name)
+            return Param.objects.get(name=name)
         except Param.DoesNotExist:
             return None

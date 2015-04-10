@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django-params',
-    version='0.2',
+    version='0.3',
     url='https://github.com/maxvyaznikov/django-params',
     download_url='https://github.com/maxvyaznikov/django-params',
     author='Max Vyaznikov',

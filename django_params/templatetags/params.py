@@ -1,6 +1,8 @@
 import logging
 from django.template import Library, Node, TemplateSyntaxError, Variable
 from django.utils.safestring import mark_safe
+from gettext import gettext as _
+
 from ..models import Param
 
 register = Library()
@@ -18,17 +20,17 @@ class ParamNode(Node):
         'django.core.context_processors.request' is into TEMPLATE_CONTEXT_PROCESSORS
         and context for template was created as RequestContext(request, {<...>})
         """
-        try:
-            param = Param.get(context['request'], self.param_name.resolve(context))
-            result = mark_safe(param.value)
-            if self.context_name:
-                context[self.context_name] = result
-                return ""
-            else:
-                return result
-        except Param.DoesNotExist as e:
-            logger.warning(unicode(e))
+        param_name = self.param_name.resolve(context)
+        param = Param.get(context['request'], param_name)
+        if not param:
+            logger.warning(_("Param %s was not found") % param_name)
             return ""
+        result = mark_safe(param.value)
+        if self.context_name:
+            context[self.context_name] = result
+            return ""
+        else:
+            return result
 
 @register.tag
 def param(parser, token):

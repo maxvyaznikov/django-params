@@ -15,10 +15,7 @@ Django package makes possible to store in DB and manage through django-admin par
     )
     DJANGO_PARAMS_HAS_ADD_PERMISSION = True
     ```
-3. Create new table
-    ```
-    python manage.py syncdb
-    ```
+3. Create new table by ```python manage.py syncdb``` or ```python manage.py migrate```
 4. Go to /admin by Home › Django_params › Params and add new param
 5. New param additional goes through 2 steps:
     * specify name ('Copyright'), type ('Text') and click "Save and continue editing"

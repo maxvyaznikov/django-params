@@ -1,4 +1,5 @@
 from datetime import datetime
+import django
 from django import forms
 from django.conf import settings
 from django.contrib import admin
@@ -14,6 +15,7 @@ class TextDateWidget(widgets.AdminDateWidget):
         value = datetime.strptime(value, fmt)
         return super(TextDateWidget, self).decompress(value)
 
+
 class TextIntegerWidget(widgets.AdminIntegerFieldWidget):
     def decompress(self, value):
         value = int(value)
@@ -25,9 +27,12 @@ class ParamAdminAddForm(forms.ModelForm):
         model = Param
         exclude = ('value',)
 
+
 class ParamAdminChangeForm(forms.ModelForm):
     class Meta:
         model = Param
+        if django.VERSION >= (1, 6):
+            fields = '__all__'  # eliminate RemovedInDjango18Warning
 
     def __init__(self, *args, **kwargs):
         super(ParamAdminChangeForm, self).__init__(*args, **kwargs)
@@ -37,6 +42,7 @@ class ParamAdminChangeForm(forms.ModelForm):
                 self.fields['value'].widget = TextDateWidget()
             elif instance.type == Param.TYPE_INT:
                 self.fields['value'].widget = TextIntegerWidget()
+
 
 class ParamAdmin(admin.ModelAdmin):
     form = ParamAdminChangeForm

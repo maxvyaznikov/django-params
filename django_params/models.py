@@ -9,10 +9,12 @@ from gettext import gettext as _
 class Param(models.Model):
     TYPE_TEXT = 't'
     TYPE_DATE = 'd'
+    TYPE_DATETIME = 'dt'
     TYPE_INT = 'i'
     TYPE_CHOICES = (
         (TYPE_TEXT, 'Text'),
         (TYPE_DATE, 'Date'),
+        (TYPE_DATETIME, 'DateTime'),
         (TYPE_INT, 'Integer'),
     )
     name = models.CharField(choices=settings.DJANGO_PARAMS_NAME_CHOICES, unique=True, max_length=255)
@@ -23,6 +25,7 @@ class Param(models.Model):
         return self.get_name_display()
 
     class Meta:
+        app_label = 'django_params'
         verbose_name = _('param')
         verbose_name_plural = _('params')
 
@@ -31,7 +34,12 @@ class Param(models.Model):
             if self.value:
                 fmt = get_format('DATE_INPUT_FORMATS')[0]
                 return date.fromordinal(datetime.strptime(self.value, fmt).toordinal())
-                # return datetime.strptime(self.value, fmt)
+            else:
+                return None
+        elif self.type == Param.TYPE_DATETIME:
+            if self.value:
+                fmt = get_format('DATETIME_INPUT_FORMATS')[0]
+                return datetime.strptime(self.value, fmt)
             else:
                 return None
         elif self.type == Param.TYPE_INT:
@@ -46,8 +54,28 @@ class Param(models.Model):
         return request._django_params_cache[name] if name in request._django_params_cache else None
 
     @staticmethod
-    def get_one(name):
+    def get_one(name, create_if_nothing_with=None):
+        """
+        Function to get single param by a single query
+
+        :param name: is a name of parameter
+        :param create_if_nothing_with: if you want to create param with default value
+            if it doesn't exist on the time of your call, specify this param as tuple
+            of (<type>, <value>) to create it. For example:
+            >> Param.get_one(settings.PARAMS_COPYRIGHT)
+            None
+            >> Param.get_one(settings.PARAMS_COPYRIGHT, (Param.TYPE_TEXT, '(c)'))
+            '(c)'
+            >> Param.get_one(settings.PARAMS_COPYRIGHT)
+            '(c)'
+        :return:
+        """
         try:
             return Param.objects.get(name=name)
         except Param.DoesNotExist:
-            return None
+            if create_if_nothing_with is None:
+                return None
+            else:
+                return Param.objects.create(name=name,
+                                            type=create_if_nothing_with[0],
+                                            value=create_if_nothing_with[1])

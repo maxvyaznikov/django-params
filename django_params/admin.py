@@ -16,6 +16,13 @@ class TextDateWidget(widgets.AdminDateWidget):
         return super(TextDateWidget, self).decompress(value)
 
 
+class TextDateTimeWidget(widgets.AdminSplitDateTime):
+    def decompress(self, value):
+        fmt = get_format('DATETIME_INPUT_FORMATS')[0]
+        value = datetime.strptime(value, fmt)
+        return super(TextDateTimeWidget, self).decompress(value)
+
+
 class TextIntegerWidget(widgets.AdminIntegerFieldWidget):
     def decompress(self, value):
         value = int(value)
@@ -40,6 +47,8 @@ class ParamAdminChangeForm(forms.ModelForm):
         if 'value' in self.fields:
             if instance.type == Param.TYPE_DATE:
                 self.fields['value'].widget = TextDateWidget()
+            elif instance.type == Param.TYPE_DATETIME:
+                self.fields['value'].widget = TextDateTimeWidget()
             elif instance.type == Param.TYPE_INT:
                 self.fields['value'].widget = TextIntegerWidget()
 
@@ -51,8 +60,8 @@ class ParamAdmin(admin.ModelAdmin):
     search_fields = ('name', 'value', 'type',)
     ordering = ('name',)
 
-    def has_delete_permission(self, request, obj=None):
-        return False
+    # def has_delete_permission(self, request, obj=None):
+    #     return False
 
     def has_add_permission(self, request):  # deny addition
         return settings.DJANGO_PARAMS_HAS_ADD_PERMISSION

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from datetime import date, datetime
 from django.db import models
-from django.utils.formats import get_format
 from django.conf import settings
+from django.utils import timezone
 from gettext import gettext as _
 
-DEFAULT_DATE_FORMAT = getattr(settings, 'DJANGO_PARAMS_DATE_FORMAT', '%Y-%m-%d')
-DEFAULT_DATETIME_FORMAT = getattr(settings, 'DJANGO_PARAMS_DATETIME_FORMAT', '%Y-%m-%d %H:%M:%S')
+DEFAULT_DATE_FORMAT = getattr(settings, 'DJANGO_PARAMS_DATE_FORMAT', '%d.%m.%Y')
+DEFAULT_DATETIME_FORMAT = getattr(settings, 'DJANGO_PARAMS_DATETIME_FORMAT', '%d.%m.%Y %H:%M:%S')
 
 
 class Param(models.Model):
@@ -59,6 +59,7 @@ class Param(models.Model):
         elif type == Param.TYPE_DATETIME:
             if value:
                 value = datetime.strptime(value, DEFAULT_DATETIME_FORMAT)
+                value = timezone.make_aware(value, timezone.get_default_timezone())
             else:
                 value = None
         elif type == Param.TYPE_INT:

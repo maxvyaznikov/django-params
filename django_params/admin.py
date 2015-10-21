@@ -1,4 +1,3 @@
-from datetime import datetime
 import django
 from django import forms
 from django.conf import settings
@@ -10,19 +9,23 @@ from .models import Param
 
 class TextDateWidget(widgets.AdminDateWidget):
     def decompress(self, value):
-        value = Param.str2val(Param.TYPE_DATE, value)
+        value = Param.str2val(Param.TYPE_DATE, value)[1]
         return super(TextDateWidget, self).decompress(value)
 
 
 class TextDateTimeWidget(widgets.AdminSplitDateTime):
     def decompress(self, value):
-        value = Param.str2val(Param.TYPE_DATETIME, value)
+        value = Param.str2val(Param.TYPE_DATETIME, value)[1]
         return super(TextDateTimeWidget, self).decompress(value)
+
+    def value_from_datadict(self, *args, **kwargs):
+        value = super(TextDateTimeWidget, self).value_from_datadict(*args, **kwargs)
+        return ' '.join(value)
 
 
 class TextIntegerWidget(widgets.AdminIntegerFieldWidget):
     def decompress(self, value):
-        value = Param.str2val(Param.TYPE_INT, value)
+        value = Param.str2val(Param.TYPE_INT, value)[1]
         return super(TextIntegerWidget, self).decompress(value)
 
 

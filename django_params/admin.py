@@ -4,28 +4,25 @@ from django import forms
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin import widgets
-from django.utils.formats import get_format
 
 from .models import Param
 
 
 class TextDateWidget(widgets.AdminDateWidget):
     def decompress(self, value):
-        fmt = get_format('DATE_INPUT_FORMATS')[0]
-        value = datetime.strptime(value, fmt)
+        value = Param.str2val(Param.TYPE_DATE, value)
         return super(TextDateWidget, self).decompress(value)
 
 
 class TextDateTimeWidget(widgets.AdminSplitDateTime):
     def decompress(self, value):
-        fmt = get_format('DATETIME_INPUT_FORMATS')[0]
-        value = datetime.strptime(value, fmt)
+        value = Param.str2val(Param.TYPE_DATETIME, value)
         return super(TextDateTimeWidget, self).decompress(value)
 
 
 class TextIntegerWidget(widgets.AdminIntegerFieldWidget):
     def decompress(self, value):
-        value = int(value)
+        value = Param.str2val(Param.TYPE_INT, value)
         return super(TextIntegerWidget, self).decompress(value)
 
 

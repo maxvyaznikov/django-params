@@ -5,6 +5,9 @@ from django.utils.formats import get_format
 from django.conf import settings
 from gettext import gettext as _
 
+DEFAULT_DATE_FORMAT = getattr(settings, 'DJANGO_PARAMS_DATE_FORMAT', '%Y-%m-%d')
+DEFAULT_DATETIME_FORMAT = getattr(settings, 'DJANGO_PARAMS_DATETIME_FORMAT', '%Y-%m-%d %H:%M:%S')
+
 
 class Param(models.Model):
     TYPE_TEXT = 't'
@@ -30,22 +33,37 @@ class Param(models.Model):
         verbose_name_plural = _('params')
 
     def get_value(self):
-        if self.type == Param.TYPE_DATE:
-            if self.value:
-                fmt = get_format('DATE_INPUT_FORMATS')[0]
-                return date.fromordinal(datetime.strptime(self.value, fmt).toordinal())
+        return Param.str2val(type=self.type, value=self.value)[1]
+
+    def set_value(self, value):
+        self.value = Param.val2str(type=self.type, value=value)[1]
+        self.save()
+
+    @staticmethod
+    def val2str(type, value):
+        if type == Param.TYPE_DATE:
+            value = datetime.strftime(value, DEFAULT_DATE_FORMAT)
+        elif type == Param.TYPE_DATETIME:
+            value = datetime.strftime(value, DEFAULT_DATETIME_FORMAT)
+        elif type == Param.TYPE_INT:
+            value = str(value)
+        return type, value
+
+    @staticmethod
+    def str2val(type, value):
+        if type == Param.TYPE_DATE:
+            if value:
+                value = date.fromordinal(datetime.strptime(value, DEFAULT_DATE_FORMAT).toordinal())
             else:
-                return None
-        elif self.type == Param.TYPE_DATETIME:
-            if self.value:
-                fmt = get_format('DATETIME_INPUT_FORMATS')[0]
-                return datetime.strptime(self.value, fmt)
+                value = None
+        elif type == Param.TYPE_DATETIME:
+            if value:
+                value = datetime.strptime(value, DEFAULT_DATETIME_FORMAT)
             else:
-                return None
-        elif self.type == Param.TYPE_INT:
-            return int(self.value)
-        else:
-            return self.value
+                value = None
+        elif type == Param.TYPE_INT:
+            value = int(value)
+        return type, value
 
     @staticmethod
     def get(request, name):
@@ -76,6 +94,5 @@ class Param(models.Model):
             if create_if_nothing_with is None:
                 return None
             else:
-                return Param.objects.create(name=name,
-                                            type=create_if_nothing_with[0],
-                                            value=create_if_nothing_with[1])
+                type, val = Param.val2str(*create_if_nothing_with)
+                return Param.objects.create(name=name, type=type, value=val)

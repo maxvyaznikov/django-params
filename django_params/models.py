@@ -27,6 +27,9 @@ class Param(models.Model):
     def __unicode__(self):
         return self.get_name_display()
 
+    def __str__(self):
+        return self.__unicode__()
+
     class Meta:
         app_label = 'django_params'
         verbose_name = _('param')
